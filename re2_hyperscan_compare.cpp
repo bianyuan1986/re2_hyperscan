@@ -104,14 +104,18 @@ struct ruleSet
 	int cur;
 	struct rule *r;
 
+	/*concatenate multi-rule using '|' character*/
 	char *ruleSetPattern;
 	int len;
+	/*hyperscan single pattern match engine*/
 	struct engine e;
 	struct result res;
 
+	/*multi pattern for multiE*/
 	unsigned int *ids;
 	unsigned int *flags;
 	const char **multiPattern;
+	/*hyperscan multi-pattern match engine*/
 	struct engine multiE;
 	struct result multiRes;
 	struct matchRule outcome;
@@ -123,7 +127,7 @@ struct ruleSet ruleSetArray[TARGET_MAX];
 RE2::Options opt;
 hs_platform_info_t platform;
 
-const char *payload = "GET / HTTP/1.1\r\nHost: www.testtang4.com\r\nstgw-dstip: 10.10.10.10\r\nConnection: Keep-Alive\r\nAccept: text/plain\r\nContent-Type: application/x-www-form-urlencoded\r\nReferer: http://www.123.com\r\nContent-Length: 1021\r\nstgw-orgreq: POST /menshen?id= HTTP/1.1\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)\r\nstgw-srcip: 9.9.9.9\r\nX-Forwarded-For: 3.3.3.3\r\n\r\ntitle=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2";
+const char *payload = "GET / HTTP/1.1\r\nHost: www.testtang4.com\r\nstgw-dstip: 10.10.10.10\r\nConnection: Keep-Alive\r\nAccept: text/plain\r\nContent-Type: application/x-www-form-urlencoded\r\nReferer: http://www.123.com\r\nContent-Length: 1021\r\nstgw-orgreq: POST /menshen?id= HTTP/1.1\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)\r\nstgw-srcip: 9.9.9.9\r\nX-Forwarded-For: 3.3.3.3\r\n\r\ntitle=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3&title=test&sub%5B%5D=1&sub%5B%5D=2abcsdfwefwbcd";
 
 int getTargetIdx(char *target)
 {
